@@ -12,14 +12,17 @@ typedef struct person
     char alleles[2];
 } person;
 
+// inputs the generations and lengths
 const int GENERATIONS = 3;
 const int INDENT_LENGTH = 4;
 
+// thinks as a function of generations
 person *create_family(int generations);
 void print_family(person *p, int generation);
 void free_family(person *p);
 char random_allele();
 
+// main function to create family tree, and individuals within it
 int main(void)
 {
     // Seed random number generator
@@ -105,7 +108,7 @@ void print_family(person *p, int generation)
         printf(" ");
     }
 
-    // Print person
+    // Print person and their generation, blood time, and alleles
     printf("Generation %i, blood type %c%c\n", generation, p->alleles[0], p->alleles[1]);
     print_family(p->parents[0], generation + 1);
     print_family(p->parents[1], generation + 1);
