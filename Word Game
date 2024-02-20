@@ -1,1 +1,178 @@
+import random
+import sys
+from datetime import date
+import json
 
+category = {
+    "Fruits": ["blueberry", "apple", "banana", "grape", "cherry", "peach", "apricot", "pear", "kiwi", "fig", "guava", "lemon", "kumquat", "blackberry", "raspberry", "lime", "watermelon", "melon", "cantelope", "strawberry"],
+    "Vegetables": ["cucumber", "pepper", "avocado", "brocolli", "cabbage", "carrots", "celery", "corn", "garlic", "kale", "mushroom", "asparagus", "eggplant", "artichoke", "cauliflower", "bean", "leek", "lettuce", "onion", "spinach"],
+    "Dairy": ["icecream", "milk", "yogurt", "cheese", "butter"],
+}
+
+def menu():
+    print("=========================================")
+    print("[                MENU                   ]")
+    print("[            1) Fruits                  ]")
+    print("[            2) Vegetables              ]")
+    print("[            3) Dairy                   ]")
+    print("[            4) Random                  ]")
+    print("[            5) Scoreboard              ]")
+    print("[            6) Exit                    ]")
+    print("[            7) How-To-Play             ]")
+    print("=========================================\n")
+
+
+def scoreboard(score, name):
+    today = date.today().strftime("%Y-%m-%d")
+    scoreboard_file = {"Name": name, "Score": score, "Date": today}
+
+    with open("scoreboard.txt", "a") as f:
+        f.write(json.dumps(scoreboard_file))
+
+
+def displayscoreboard():
+    i = 0
+
+
+word_category = 0
+randomword_category = 0
+other_words = 0
+
+
+def frandom():
+    word_category = list(category.keys())
+    randomword_category = random.choice(word_category)
+    random_words = list(category[randomword_category])
+    chosen_word = random.choice(random_words)
+    hangman(chosen_word)
+
+
+def category1():
+    fruit_word = list(category["Fruits"])
+    chosen_word = random.choice(fruit_word)
+    hangman(chosen_word)
+
+
+def category2():
+    vegetable_word = list(category["Vegetables"])
+    chosen_word = random.choice(vegetable_word)
+    hangman(chosen_word)
+
+
+def category3():
+    dairy_word = list(category["Dairy"])
+    chosen_word = random.choice(dairy_word)
+    hangman(chosen_word)
+
+
+def winner(tries, length):
+    score = tries * int(length)
+    print("SCORE: ", end="")
+    print(score)
+    nameget = input("ENTER USERNAME: ")
+    scoreboard(score, nameget)
+
+
+def hangman(chosen_word):
+    wordchecker = False
+    wordcheckerint = 0
+    mistakes = 5
+    mistake_checker = 0
+    hangmanword = ["_"]
+    repeat_checker = []
+    repeat_checkerint = -1
+    winnerchecker = 0
+    f = len(chosen_word)
+
+
+    for p in range(len(chosen_word) - 1):
+        hangmanword.append("_")
+
+    while wordchecker == False:
+        print("")
+        for k in range(len(chosen_word)):
+            print(hangmanword[k], end=" ")
+        letter_getter = input("Please type a letter: ")
+
+        repeat_checkerint = repeat_checkerint + 1
+        repeat_checker.append(letter_getter)
+        print(repeat_checker)
+
+        for j in range(repeat_checkerint):
+            if ord(letter_getter) == ord(repeat_checker[j]):
+                print("No repeats")
+                mistakes = mistakes - 1
+                break
+
+        for i in range(len(chosen_word)):
+            if ord(chosen_word[i]) == ord(letter_getter):
+                hangmanword[i] = str(letter_getter)
+                mistake_checker = mistake_checker + 1
+
+        if mistake_checker >= 1:
+            mistakes = mistakes + 0
+        else:
+            mistakes = mistakes - 1
+
+        mistake_checker = 0
+
+        if mistakes <= 0:
+            print("You lost! GAME OVER!:(")
+            print("Your word was: ", end=" ")
+            print(chosen_word)
+            menu()
+            interface()
+
+        print("Mistakes Left: ", end=" ")
+        print(mistakes)
+
+        for v in range(len(chosen_word)):
+            if ord(hangmanword[v]) == ord("_"):
+                winnerchecker = winnerchecker + 1
+
+        if winnerchecker == 0:
+            wordchecker = True
+            print("Congratulations! You won!")
+            winner(mistakes, f)
+
+        winnerchecker = 0
+
+
+menu_int = 0
+program_active = True
+
+
+def interface():
+    menu_int = input("Please select a choice: ")
+    if int(menu_int) == 1:
+        category1()
+
+    if int(menu_int) == 2:
+        category2()
+
+    if int(menu_int) == 3:
+        category3()
+
+    if int(menu_int) == 4:
+        frandom()
+
+    if int(menu_int) == 5:
+        displayscoreboard()
+
+    if int(menu_int) == 6:
+        program_active = False
+        sys.exit()
+
+    if int(menu_int) == 7:
+        print("=========================================")
+        print("[             Introduction              ]")
+        print("[    Welcome to Stephan's Word Game!    ]")
+        print("[     Guess the word from 3 topics      ]")
+        print("[ Guess in less tries than word length! ]")
+        print("[            Let's Begin!               ]")
+        print("=========================================\n")
+
+
+while program_active == True:
+    menu()
+    interface()
