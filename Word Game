@@ -2,6 +2,20 @@ import random
 import sys
 from datetime import date
 import json
+import os
+
+from os import system, name
+
+from time import sleep
+
+def clear():
+    # for windows operator:
+    if name == 'nt':
+        _ = system ('cls')
+    # for mac operator:
+    else:
+        _ = system ('clear')
+clear()
 
 category = {
     "Fruits": ["blueberry", "apple", "banana", "grape", "cherry", "peach", "apricot", "pear", "kiwi", "fig", "guava", "lemon", "kumquat", "blackberry", "raspberry", "lime", "watermelon", "melon", "cantelope", "strawberry"],
@@ -12,26 +26,52 @@ category = {
 def menu():
     print("=========================================")
     print("[                MENU                   ]")
-    print("[            1) Fruits                  ]")
-    print("[            2) Vegetables              ]")
-    print("[            3) Dairy                   ]")
-    print("[            4) Random                  ]")
-    print("[            5) Scoreboard              ]")
-    print("[            6) Exit                    ]")
-    print("[            7) How-To-Play             ]")
+    print("[            1) How-To-Play             ]")
+    print("[            2) Fruits                  ]")
+    print("[            3) Vegetables              ]")
+    print("[            4) Dairy                   ]")
+    print("[            5) Random                  ]")
+    print("[            6) Scoreboard              ]")
+    print("[            7) Exit                    ]")
     print("=========================================\n")
 
+#def scoreboard(score, name):
+#    today = date.today().strftime("%Y-%m-%d")
+#    scoreboard_file = {"Name": name, "Score": score,}
+#    with open("scoreboard.txt", "a") as f:
+#        f.write(json.dumps(scoreboard_file))
+#def displayscoreboard():
+#    i = 0
 
-def scoreboard(score, name):
-    today = date.today().strftime("%Y-%m-%d")
-    scoreboard_file = {"Name": name, "Score": score, "Date": today}
+def display_scoreboard():
+    sorted_scores = sort_scores()
 
-    with open("scoreboard.txt", "a") as f:
-        f.write(json.dumps(scoreboard_file))
+def add_score(player_name, score):
+    score.append((player_name, score))
+    with open("scoreboard.txt", "a") as file:
+        file.write(f"{player_name}:{score}\n")
 
+def sort_scores():
+    with open("scoreboard.txt", "r") as file:
+        score_records = file.readlines()
 
-def displayscoreboard():
-    i = 0
+    score = []
+    for individual_score in score_records:
+        if ":" in individual_score:
+            name, score_str = individual_score.split(":")
+            score = int(score_str)
+            score.append((name, score))
+
+        sorted_scores = sorted(score, key=lambda x: x[1], reverse = True)
+        return sorted_scores
+
+def display_scoreboard():
+    sorted_scores = sort_scores()
+    print("Scoreboard for Stephan's Word Game:")
+    placement = 1
+    for player_name, score in sorted_scores:
+        print(f"{placement}.{player_name}: {score}")
+        placement += 1
 
 
 word_category = 0
@@ -44,41 +84,44 @@ def frandom():
     randomword_category = random.choice(word_category)
     random_words = list(category[randomword_category])
     chosen_word = random.choice(random_words)
-    hangman(chosen_word)
+    letter_by_letter_guess(chosen_word)
 
 
 def category1():
     fruit_word = list(category["Fruits"])
     chosen_word = random.choice(fruit_word)
-    hangman(chosen_word)
+    letter_by_letter_guess(chosen_word)
 
 
 def category2():
     vegetable_word = list(category["Vegetables"])
     chosen_word = random.choice(vegetable_word)
-    hangman(chosen_word)
+    letter_by_letter_guess(chosen_word)
 
 
 def category3():
     dairy_word = list(category["Dairy"])
     chosen_word = random.choice(dairy_word)
-    hangman(chosen_word)
+    letter_by_letter_guess(chosen_word)
 
 
 def winner(tries, length):
     score = tries * int(length)
     print("SCORE: ", end="")
     print(score)
-    nameget = input("ENTER USERNAME: ")
-    scoreboard(score, nameget)
+    get_name = input("ENTER USERNAME: ")
+    sort_scores(score, get_name)
+    sleep(5)
+    clear()
+    menu()
 
 
-def hangman(chosen_word):
+def letter_by_letter_guess(chosen_word):
     wordchecker = False
     wordcheckerint = 0
     mistakes = 5
     mistake_checker = 0
-    hangmanword = ["_"]
+    letter_by_letter_guessword = ["_"]
     repeat_checker = []
     repeat_checkerint = -1
     winnerchecker = 0
@@ -86,13 +129,13 @@ def hangman(chosen_word):
 
 
     for p in range(len(chosen_word) - 1):
-        hangmanword.append("_")
+        letter_by_letter_guessword.append("_")
 
     while wordchecker == False:
         print("")
         for k in range(len(chosen_word)):
-            print(hangmanword[k], end=" ")
-        letter_getter = input("Please type a letter: ")
+            print(letter_by_letter_guessword[k], end=" ")
+        letter_getter = input("\nPlease type a letter: ")
 
         repeat_checkerint = repeat_checkerint + 1
         repeat_checker.append(letter_getter)
@@ -106,7 +149,7 @@ def hangman(chosen_word):
 
         for i in range(len(chosen_word)):
             if ord(chosen_word[i]) == ord(letter_getter):
-                hangmanword[i] = str(letter_getter)
+                letter_by_letter_guessword[i] = str(letter_getter)
                 mistake_checker = mistake_checker + 1
 
         if mistake_checker >= 1:
@@ -117,22 +160,24 @@ def hangman(chosen_word):
         mistake_checker = 0
 
         if mistakes <= 0:
-            print("You lost! GAME OVER!:(")
+            print("\nYou lost! GAME OVER!:(")
             print("Your word was: ", end=" ")
             print(chosen_word)
+            sleep(5)
+            clear()
             menu()
             interface()
 
-        print("Mistakes Left: ", end=" ")
+        print("\nMistakes Left: ", end=" ")
         print(mistakes)
 
         for v in range(len(chosen_word)):
-            if ord(hangmanword[v]) == ord("_"):
+            if ord(letter_by_letter_guessword[v]) == ord("_"):
                 winnerchecker = winnerchecker + 1
 
         if winnerchecker == 0:
             wordchecker = True
-            print("Congratulations! You won!")
+            print("\nCongratulations! You won!")
             winner(mistakes, f)
 
         winnerchecker = 0
@@ -144,26 +189,26 @@ program_active = True
 
 def interface():
     menu_int = input("Please select a choice: ")
-    if int(menu_int) == 1:
+    if int(menu_int) == 2:
         category1()
 
-    if int(menu_int) == 2:
+    if int(menu_int) == 3:
         category2()
 
-    if int(menu_int) == 3:
+    if int(menu_int) == 4:
         category3()
 
-    if int(menu_int) == 4:
+    if int(menu_int) == 5:
         frandom()
 
-    if int(menu_int) == 5:
-        displayscoreboard()
-
     if int(menu_int) == 6:
+        display_scoreboard()
+
+    if int(menu_int) == 7:
         program_active = False
         sys.exit()
 
-    if int(menu_int) == 7:
+    if int(menu_int) == 1:
         print("=========================================")
         print("[             Introduction              ]")
         print("[    Welcome to Stephan's Word Game!    ]")
